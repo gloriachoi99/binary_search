@@ -1,5 +1,8 @@
 #!/bin/python3
 
+
+
+
 def find_smallest_positive(xs):
     '''
     Assume that xs is a list of numbers sorted from LOWEST to HIGHEST.
@@ -17,7 +20,21 @@ def find_smallest_positive(xs):
     >>> find_smallest_positive([-3, -2, -1]) is None
     True
     '''
-
+    if xs[-1] <= 0:
+        return None
+    LoL = [x for x in xs if x>0]
+    val = min(LoL)
+    left = 0
+    right = len(xs)-1        
+    while left <= right:
+        mid = (left+right)//2
+        if val < xs[mid]:
+            right = mid-1
+        if val > xs[mid]:
+            left = mid+1
+        if val == xs[mid]:
+            return mid
+    return None
 
 def count_repeats(xs, x):
     '''
@@ -39,6 +56,52 @@ def count_repeats(xs, x):
     >>> count_repeats([3, 2, 1], 4)
     0
     '''
+    left = 0
+    right = len(xs)-1
+    if len(xs)==0:
+        return 0
+   
+    def greater_than(left,right):   #left index
+        mid = (left+right)//2
+        if x==xs[mid]:
+            if xs[mid-1]>x or mid==0: #want to make sure it's the lowest index possible
+                return mid
+            else:       #there is an x with a lower index
+                right = mid-1
+                return greater_than(left,right)
+        if left==right:
+            return None
+        if x<xs[mid]:
+            left = mid+1
+            return greater_than(left,right)
+        if x>xs[mid]:
+            right = mid-1
+            return greater_than(left,right)
+
+    def less_than(left,right):      #right index
+        mid = (left+right)//2
+        if x==xs[mid]:
+            if mid==len(xs)-1 or xs[mid+1]<x:
+                return mid
+            else:
+                left = mid+1
+                return less_than(left,right)
+        if left==right:
+            return None
+        if x<xs[mid]:
+            left = mid+1
+            return less_than(left,right)
+        if x>xs[mid]:
+            right = mid-1
+            return less_than(left,right)
+ 
+    i = greater_than(left,right)
+    j = less_than(left,right)
+
+    if i==None or j==None:
+        return 0
+    else:
+        return j-i+1
 
 
 def argmin(f, lo, hi, epsilon=1e-3):
@@ -61,4 +124,13 @@ def argmin(f, lo, hi, epsilon=1e-3):
     >>> argmin(lambda x: (x-5)**2, -20, 0)
     -0.00016935087808430278
     '''
-
+    def minimums(lo, hi):
+       m1 = lo + (hi-lo)/4
+       m2 = lo + (hi-lo)/2
+       if abs(lo-hi) < epsilon: # base case
+           return hi
+       if f(m1) < f(m2):
+           return minimums(lo,m2)
+       if f(m1) > f(m2):
+           return minimums(m1,hi)
+    return minimums(lo,hi)
